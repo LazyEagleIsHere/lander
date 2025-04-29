@@ -34,6 +34,29 @@ def main():
     text_render = font.render(text, True, gray)
     text_rect = text_render.get_rect(center=(width // 2, y_position))
     screen.blit(text_render, text_rect)
+  
+  def cntdown():
+    screen.fill(black)
+    # font = pygame.font.SysFont(None, 100)
+    # cnt = 3
+    # text = font.render(str(cnt), True, white)
+    
+    # timer_event = pygame.USEREVENT + 1
+    # pygame.time.set_timer(timer_event, 1000)
+    
+    # run = True
+    # while run:
+    #   clock.tick(60)
+    #   for event in pygame.event.get():
+    #     if event.type == timer_event:
+    #       cnt -= 1
+    #       text = font.render(str(cnt), True, white)
+    #       if cnt == 0:
+    #         pygame.time.set_timer(timer_event, 0)
+      
+    #   text_rect = text.get_rect(center = screen.get_rect().center)
+    #   screen.blit(text, text_rect)
+    #   pygame.display.flip()
 
   def start_screen():
     screen.fill(black)
@@ -46,7 +69,6 @@ def main():
       
       mouse_pos = pygame.mouse.get_pos()
 
-      
       if start.collidepoint(mouse_pos):
         write(screen, start, "Start", 65, "black", "gray69", 10)
       else:
@@ -70,10 +92,13 @@ def main():
         elif event.type == pygame.MOUSEBUTTONDOWN:
           if start.collidepoint(mouse_pos):
             starter = False
+            cntdown()
           elif lead.collidepoint(mouse_pos):
             starter = False
             leaderboard_screen()
 
+  start_screen()
+  
   def leaderboard_screen():
     lead = True
     while lead:    
@@ -84,7 +109,6 @@ def main():
       home = pygame.Rect(width // 2 - 200, height // 2 + 150, 400, 100)
       
       mouse_pos = pygame.mouse.get_pos()
-
       
       if home.collidepoint(mouse_pos):
         write(screen, home, "Return", 65, "black", "gray69", 10)
@@ -102,18 +126,66 @@ def main():
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-          if home.collidepoint(pygame.mouse.get_pos()):
+          if home.collidepoint(mouse_pos):
             lead = False
             start_screen()
-  
-  start_screen()
+
+  def wrong_area():
+    sad = True
+    while sad:
+      draw("Game Over", 100, height // 2 - 250)
+      draw("Reason: landed at wrong area", 100, height // 2 - 150)
+      
+      mouse_pos = pygame.mouse.get_pos()
+      
+      home = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
+      
+      if home.collidepoint(mouse_pos):
+        write(screen, home, "Return", 65, "black", "gray69", 10)
+      else:
+        write(screen, home, "Return", 65, "black", "white", 10)
+      
+      again = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+      
+      if again.collidepoint(mouse_pos):
+        write(screen, again, "Play Again", 65, "black", "gray69", 10)
+      else:
+        write(screen, again, "Play Again", 65, "black", "white", 10)
+      
+      pygame.display.flip()
+      
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          pygame.quit()
+          sys.exit()
+        elif event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+          if home.collidepoint(mouse_pos):
+            sad = False
+            start_screen()
+          elif again.collidepoint(mouse_pos):
+            sad = False
+            cntdown()
 
   gaming = True
+  
+  spaceship_pos = [10, 10]
+  gravity = 3.0
+  a = 6.0
+  v1 = -0.1
+  v2 = 0.0
 
   pygame.display.flip()
 
   while gaming:
     screen.fill(black)
+    
+    if spaceship_pos[1] + 15 >= height:
+      wrong_area()
+      gaming = False
     
     pygame.draw.rect(screen, red, (int(spaceship_pos[0]), int(spaceship_pos[1]), 10, 10))
     
@@ -131,9 +203,41 @@ def main():
     if keys[pygame.K_RIGHT]:
       v2 -= a / (fps * 2)
     
-    v2 = max(min(v2, 5.0), -5.0)
+    v2 = max(min(v2, 20.0), -20.0)
     
     spaceship_pos[0] += v2
+    
+    info_y = 10
+    info_spacing = 75
+    vertical_v_text = font.render(f"Vertical velocity: {v1:.5f}", True, orange)
+    vertical_v_rect = vertical_v_text.get_rect(topleft = (10, info_y))
+    pygame.draw.rect(screen, black, vertical_v_rect.inflate(10, 5))
+    screen.blit(vertical_v_text, vertical_v_rect)
+    
+    horizontal_v_text = font.render(f"Horizontal velocity: {v2:.5f}", True, orange)
+    horizontal_v_rect = horizontal_v_text.get_rect(topleft = (300 + info_spacing, info_y))
+    pygame.draw.rect(screen, black, horizontal_v_rect.inflate(10, 5))
+    screen.blit(horizontal_v_text, horizontal_v_rect)
+    
+    spaceship_h_text = font.render(f"Altitude: {abs(spaceship_pos[1] - height):.5f}", True, orange)
+    spaceship_h_rect = spaceship_h_text.get_rect(topleft = (700 + info_spacing, info_y))
+    pygame.draw.rect(screen, black, spaceship_h_rect.inflate(10, 5))
+    screen.blit(spaceship_h_text, spaceship_h_rect)
+    
+    if spaceship_pos[0] < -10:
+      if spaceship_pos[1] < -10:
+        pygame.draw.polygon(screen, white, [[10, 10], [10, 25], [25, 10]])
+      else:
+        pygame.draw.polygon(screen, white, [[10, spaceship_pos[1]], [25, spaceship_pos[1] - 10], [25, spaceship_pos[1] + 10]])
+    
+    if spaceship_pos[0] >= width:
+      if spaceship_pos[1] < -10:
+        pygame.draw.polygon(screen, white, [[width - 10, 10], [width - 10, 25], [width - 25, 10]])
+      else:
+        pygame.draw.polygon(screen, white, [[width - 10, spaceship_pos[1]], [width - 25, spaceship_pos[1] - 10], [width - 25, spaceship_pos[1] + 10]])
+    
+    if spaceship_pos[1] < -10 and -10 <= spaceship_pos[0] < width:
+      pygame.draw.polygon(screen, white, [[spaceship_pos[0], 10], [spaceship_pos[0] - 10, 25], [spaceship_pos[0] + 10, 25]])
     
     pygame.display.flip()
     clock.tick(fps)
