@@ -37,26 +37,18 @@ def main():
   
   def cntdown():
     screen.fill(black)
-    # font = pygame.font.SysFont(None, 100)
-    # cnt = 3
-    # text = font.render(str(cnt), True, white)
-    
-    # timer_event = pygame.USEREVENT + 1
-    # pygame.time.set_timer(timer_event, 1000)
-    
-    # run = True
-    # while run:
-    #   clock.tick(60)
-    #   for event in pygame.event.get():
-    #     if event.type == timer_event:
-    #       cnt -= 1
-    #       text = font.render(str(cnt), True, white)
-    #       if cnt == 0:
-    #         pygame.time.set_timer(timer_event, 0)
-      
-    #   text_rect = text.get_rect(center = screen.get_rect().center)
-    #   screen.blit(text, text_rect)
-    #   pygame.display.flip()
+    run = True
+    while run:
+      draw("3", 100, height // 2)
+      time.sleep(1)
+      screen.fill(black)
+      draw("2", 100, height // 2)
+      time.sleep(1)
+      screen.fill(black)
+      draw("1", 100, height // 2)
+      time.sleep(1)
+      screen.fill(black)
+      pygame.display.flip()
 
   def start_screen():
     screen.fill(black)
