@@ -38,19 +38,21 @@ def main():
   def cntdown():
     screen.fill(black)
     run = True
-    while run:
-      draw("3", 100, height // 2)
-      time.sleep(1)
+    countdown_numbers = ["3", "2", "1"]
+    
+    for number in countdown_numbers:
+      draw(number, 100, height // 2)
+      pygame.display.flip() 
+      time.sleep(1) 
       screen.fill(black)
-      pygame.display.flip()
-      draw("2", 100, height // 2)
-      time.sleep(1)
-      screen.fill(black)
-      pygame.display.flip()
-      draw("1", 100, height // 2)
-      time.sleep(1)
-      screen.fill(black)
-      pygame.display.flip()
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
 
   def start_screen():
     screen.fill(black)
