@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 from text import *
+from pygame.math import Vector2
 
 pygame.init()
 
@@ -15,7 +16,7 @@ def start_screen():
   screen.fill(black)
   starter = True
   while starter:
-    draw("E", 100, height // 4)
+    draw("Rocket Lander", 100, height // 4)
     
     start = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
     lead = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
@@ -51,6 +52,7 @@ def start_screen():
           leaderboard_screen()
 
 def leaderboard_screen():
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
   lead = True
   while lead:    
     screen.fill(black)
@@ -62,9 +64,9 @@ def leaderboard_screen():
     mouse_pos = pygame.mouse.get_pos()
     
     if home.collidepoint(mouse_pos):
-      write(screen, home, "Return", 65, "black", "gray69", 10)
+      write(screen, home, "Home", 65, "black", "gray69", 10)
     else:
-      write(screen, home, "Return", 65, "black", "white", 10)
+      write(screen, home, "Home", 65, "black", "white", 10)
     
     pygame.display.flip()
     
@@ -81,7 +83,107 @@ def leaderboard_screen():
           lead = False
           start_screen()
 
+def login():
+  global username
+  username = ""
+  running = True
+  
+  while running:
+    screen.fill(black)
+    
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
+        elif event.key == pygame.K_RETURN:
+          try:
+            if username == "admin":
+              running = False
+              password_screen()
+            elif 25000 <= int(username) <= 31000:
+              running = False
+            else:
+              username = ""
+          except:
+            if len(username) == 3 and username[0].isalpha() and username[1].isalpha() and username[2].isalpha():
+              running = False
+            else:
+              username = ""
+        elif event.key == pygame.K_BACKSPACE:
+          username = username[:-1]
+        else:
+          username += event.unicode
+    
+    name_surface = font.render(username, True, white)
+    name_rect = name_surface.get_rect()
+    name_rect.center = (width // 2, height // 2)
+    screen.blit(name_surface, name_rect)
+    
+    text_surface = font.render("Type Your Index No. : ", True, white)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (width // 2, height // 2 - 80)
+    screen.blit(text_surface, text_rect)
+    
+    pygame.display.update()
+  
+  start_screen()
+  
+def password_screen():
+  global me
+  me = False
+  password = ""
+  hidden = ""
+  running = True
+  
+  while running:
+    screen.fill(black)
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
+        elif event.key == pygame.K_RETURN:
+          if password == "Admin":
+            running = False
+            me = True
+          else:
+            password = ""
+            hidden = ""
+            running = False
+            login()
+        elif event.key == pygame.K_BACKSPACE:
+          password = password[:-1]
+          hidden = hidden[:-1]
+        elif event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
+          continue
+        else:
+          password += event.unicode
+          hidden += '*'
+
+    pass_surface = font.render(hidden, True, white)
+    pass_rect = pass_surface.get_rect()
+    pass_rect.center = (width // 2, height // 2)
+    screen.blit(pass_surface, pass_rect)
+    
+    text_surface = font.render("Password", True, white)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (width // 2, height // 2 - 80)
+    screen.blit(text_surface, text_rect)
+    
+    pygame.display.update()
+  
+  start_screen()
+    
 def wrong_area():
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
+  screen.fill(black)
   sad = True
   while sad:
     draw("Game Over", 100, height // 2 - 250)
@@ -99,9 +201,98 @@ def wrong_area():
     home = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
     
     if home.collidepoint(mouse_pos):
-      write(screen, home, "Return", 65, "black", "gray69", 10)
+      write(screen, home, "Home", 65, "black", "gray69", 10)
     else:
-      write(screen, home, "Return", 65, "black", "white", 10)
+      write(screen, home, "Home", 65, "black", "white", 10)
+    
+    pygame.display.flip()
+    
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+        if home.collidepoint(mouse_pos):
+          sad = False
+          start_screen()
+        elif again.collidepoint(mouse_pos):
+          sad = False
+          cntdown()
+
+def win():
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
+  yay = True
+  while yay:
+    screen.fill(black)
+    draw("You Win!", 100, height // 2 - 250)
+    
+    if v1 <= 1.0:
+      draw(f"Touchdown Softness: Prefect ({v1:.5f} m/s)", 100, height // 2)
+    elif v1 <= 2.0:
+      draw(f"Touchdown Softness: Good ({v1:.5f} m/s)", 100, height // 2)
+    else:
+      draw(f"Touchdown Softness: Terrible ({v1:.5f} m/s)", 100, height // 2)
+        
+    mouse_pos = pygame.mouse.get_pos()
+    
+    again = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
+    
+    if again.collidepoint(mouse_pos):
+      write(screen, again, "Play Again", 65, "black", "gray69", 10)
+    else:
+      write(screen, again, "Play Again", 65, "black", "white", 10)
+    
+    home = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+    
+    if home.collidepoint(mouse_pos):
+      write(screen, home, "Home", 65, "black", "gray69", 10)
+    else:
+      write(screen, home, "Home", 65, "black", "white", 10)
+    
+    pygame.display.flip()
+    
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+        if home.collidepoint(mouse_pos):
+          yay = False
+          start_screen()
+        elif again.collidepoint(mouse_pos):
+          yay = False
+          cntdown()
+
+def lose():
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
+  sad = True
+  while sad:
+    draw("Game Over", 100, height // 2 - 250)
+    draw("Reason: Rocket exploded due to your shit landing", 100, height // 2 - 150)
+    
+    mouse_pos = pygame.mouse.get_pos()
+    
+    again = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
+    
+    if again.collidepoint(mouse_pos):
+      write(screen, again, "Play Again", 65, "black", "gray69", 10)
+    else:
+      write(screen, again, "Play Again", 65, "black", "white", 10)
+    
+    home = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+    
+    if home.collidepoint(mouse_pos):
+      write(screen, home, "Home", 65, "black", "gray69", 10)
+    else:
+      write(screen, home, "Home", 65, "black", "white", 10)
     
     pygame.display.flip()
     
@@ -122,7 +313,7 @@ def wrong_area():
           cntdown()
 
 def cntdown():
-  global spaceship_pos, gravity, a, v1, v2, fuel
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
   screen.fill(black)
   cnt = ["3", "2", "1"]
   
@@ -152,8 +343,62 @@ def cntdown():
         sys.exit()
   game()
 
+def collide_line_line(p1, p2, p3, p4):
+  def det(a, b):
+    return a.x * b.y - a.y * b.x
+
+  r = p2 - p1
+  s = p4 - p3
+  denominator = det(r, s)
+  if denominator == 0:
+    return False
+
+  numerator_t = det(p3 - p1, s)
+  numerator_u = det(p3 - p1, r)
+  t = numerator_t / denominator
+  u = numerator_u / denominator
+
+  return 0 <= t <= 1 and 0 <= u <= 1
+
+def point_in_polygon(point, polygon):
+  x, y = point.x, point.y
+  inside = False
+  n = len(polygon)
+  for i in range(n):
+    j = (i + 1) % n
+    xi, yi = polygon[i].x, polygon[i].y
+    xj, yj = polygon[j].x, polygon[j].y
+    intersect = ((yi > y) != (yj > y)) and \
+                (x < (xj - xi) * (y - yi) / (yj - yi + 1e-10) + xi)
+    if intersect:
+      inside = not inside
+  return inside
+
+def polygons_collide(poly1, poly2):
+  for i in range(len(poly1)):
+    for j in range(len(poly2)):
+      p1 = poly1[i]
+      p2 = poly1[(i + 1) % len(poly1)]
+      p3 = poly2[j]
+      p4 = poly2[(j + 1) % len(poly2)]
+      if collide_line_line(p1, p2, p3, p4):
+        return True
+  for p in poly1:
+    if point_in_polygon(p, poly2):
+      return True
+  for p in poly2:
+    if point_in_polygon(p, poly1):
+      return True
+  return False
+
+def get_spaceship_polygon(pos):
+  x, y = pos
+  w, h = 10, 10
+  return [Vector2(x, y), Vector2(x + w, y), Vector2(x + w, y + h), Vector2(x, y + h)]
+
 def game():
-  global spaceship_pos, gravity, a, v1, v2, fuel
+  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2, ground
+  
   gaming = True
   
   spaceship_pos = [10, 10]
@@ -161,7 +406,15 @@ def game():
   a = 6.0
   v1 = -0.1
   v2 = 0.0
-  fuel = 1000
+  
+  if username == "admin" and me:
+    fuel = 1e100
+  else:
+    fuel = 1e3
+  
+  platform_pos = [randint(200, width - 200), randint(height // 2, height - 100)]
+  platform_ground1 = randint(200, 1000)
+  platform_ground2 = randint(200, 1000)
 
   pygame.display.flip()
 
@@ -177,28 +430,63 @@ def game():
           pygame.quit()
           sys.exit()
     
+    ground = [Vector2(platform_pos[0], platform_pos[1] + 2), 
+              Vector2(platform_pos[0] - platform_ground1, height), 
+              Vector2(platform_pos[0] + platform_ground2, height), 
+              Vector2(platform_pos[0] + 20, platform_pos[1] + 2)]
+    
+    spaceship_poly = get_spaceship_polygon(spaceship_pos)
+    
+    pygame.draw.polygon(screen, gray, [(p.x, p.y) for p in ground])
+    
+    pygame.draw.rect(screen, light_blue, (int(platform_pos[0]), int(platform_pos[1]), 20, 5))
+    
+    pygame.draw.polygon(screen, red, [(p.x, p.y) for p in spaceship_poly])
+    
     if spaceship_pos[1] + 15 >= height:
       wrong_area()
       gaming = False
     
-    pygame.draw.rect(screen, red, (int(spaceship_pos[0]), int(spaceship_pos[1]), 10, 10))
+    if polygons_collide(spaceship_poly, ground):
+      wrong_area()
+    
+    if platform_pos[0] <= spaceship_pos[0] + 10 and spaceship_pos[0] <= platform_pos[0] + 20 and platform_pos[1] <= spaceship_pos[1] + 10 < platform_pos[1] + 1:
+      if v1 <= 3.0:
+        win()
+      else:
+        lose()
     
     v1 += gravity / fps
-    
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_DOWN]:
-      v1 -= a / fps
-      fuel -= 1
-    
     spaceship_pos[1] += v1
     
-    if keys[pygame.K_LEFT]:
-      v2 += a / (fps * 2)
-      fuel -= 1
-    
-    if keys[pygame.K_RIGHT]:
-      v2 -= a / (fps * 2)
-      fuel -= 1
+    if username == "admin" and me:
+      if fuel > 0:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_DOWN]:
+          v1 -= a / fps
+          fuel -= 1
+        
+        if keys[pygame.K_LEFT]:
+          v2 += a / (fps * 2)
+          fuel -= 1
+        
+        if keys[pygame.K_RIGHT]:
+          v2 -= a / (fps * 2)
+          fuel -= 1
+    else:
+      if fuel > 0:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+          v1 -= a / fps
+          fuel -= 1
+        
+        if keys[pygame.K_RIGHT]:
+          v2 += a / (fps * 2)
+          fuel -= 1
+        
+        if keys[pygame.K_LEFT]:
+          v2 -= a / (fps * 2)
+          fuel -= 1
     
     v2 = max(min(v2, 20.0), -20.0)
     
@@ -260,4 +548,4 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('E')
 font = pygame.font.Font(None, 36)
 
-start_screen()
+login()
