@@ -276,7 +276,7 @@ def lose():
   sad = True
   while sad:
     draw("Game Over", 100, height // 2 - 250)
-    draw("Reason: Rocket exploded due to your shit landing", 100, height // 2 - 150)
+    draw("Reason: Rocket exploded due to your worse landing", 100, height // 2 - 150)
     
     mouse_pos = pygame.mouse.get_pos()
     
