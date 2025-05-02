@@ -450,7 +450,7 @@ def game():
     if polygons_collide(spaceship_poly, ground):
       wrong_area()
     
-    if platform_pos[0] <= spaceship_pos[0] + 10 and spaceship_pos[0] <= platform_pos[0] + 20 and platform_pos[1] <= spaceship_pos[1] + 10 < platform_pos[1] + 1:
+    if platform_pos[0] <= spaceship_pos[0] + 10 and spaceship_pos[0] <= platform_pos[0] + 20 and platform_pos[1] <= spaceship_pos[1] + 10 < platform_pos[1] + 5:
       if v1 <= 3.0:
         win()
       else:
