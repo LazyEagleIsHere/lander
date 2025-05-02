@@ -1,8 +1,11 @@
 import pygame
 import sys
 import time
+import random
 from text import *
 from pygame.math import Vector2
+from pygame.locals import *
+
 
 pygame.init()
 
@@ -16,6 +19,7 @@ def start_screen():
   screen.fill(black)
   starter = True
   while starter:
+    pygame.mouse.set_visible(1)
     draw("Rocket Lander", 100, height // 4)
     
     start = pygame.Rect(width // 2 - 200, height // 2 + 25, 400, 100)
@@ -371,6 +375,8 @@ def cntdown():
   screen.fill(black)
   cnt = ["3", "2", "1"]
   
+  pygame.mouse.set_visible(0)
+  
   for number in cnt:
     draw(number, 100, height // 2)
     pygame.display.flip()
@@ -466,11 +472,27 @@ def game():
   else:
     fuel = 1e3
   
+  pygame.mouse.set_visible(0)
+  
   platform_pos = [randint(200, width - 200), randint(height // 2, height - 100)]
   platform_ground1 = randint(200, 1000)
   platform_ground2 = randint(200, 1000)
 
-  pygame.display.flip()
+  # pygame.display.flip()
+  
+  num_stars = 100
+  star_speed_min = 1
+  star_speed_max = 4
+  star_size_min = 1
+  star_size_max = 2
+
+  stars = []
+  for i in range(num_stars):
+    star = {'x': random.randint(0, width), 
+            'y': random.randint(0, height), 
+            'speed': random.uniform(star_speed_min, star_speed_max), 
+            'size': random.uniform(star_size_min, star_size_max)}
+    stars.append(star)
 
   while gaming:
     screen.fill(black)
@@ -483,6 +505,20 @@ def game():
         if event.key == pygame.K_ESCAPE:
           pygame.quit()
           sys.exit()
+        elif event.key == pygame.K_LSHIFT:
+          gaming = False
+          start_screen()
+    
+    for star in stars:
+      star['y'] += star['speed']
+      if star['y'] > height:
+        star['y'] = 0
+        star['x'] = random.randint(0, width)
+        star['speed'] = random.uniform(star_speed_min, star_speed_max)
+        star['size'] = random.randint(star_size_min, star_size_max)
+    
+    for star in stars:
+      pygame.draw.circle(screen, white, (int(star['x']), int(star['y'])), star['size'])
     
     ground = [Vector2(platform_pos[0], platform_pos[1] + 5), 
               Vector2(platform_pos[0] - platform_ground1, height), 
@@ -495,16 +531,30 @@ def game():
     
     pygame.draw.rect(screen, light_blue, (int(platform_pos[0]), int(platform_pos[1]), 20, 5))
     
+    if platform_pos[0] <= width // 2:
+      platform_info = font.render("<-- Land Here", True, white)
+      platform_rect = platform_info.get_rect()
+      platform_rect.center = (platform_pos[0] + 120, platform_pos[1])
+      screen.blit(platform_info, platform_rect)
+    else:
+      platform_info = font.render("Land Here -->", True, white)
+      platform_rect = platform_info.get_rect()
+      platform_rect.center = (platform_pos[0] - 100, platform_pos[1])
+      screen.blit(platform_info, platform_rect)
+    
     pygame.draw.polygon(screen, red, [(p.x, p.y) for p in spaceship_poly])
     
     if spaceship_pos[1] + 15 >= height:
+      pygame.mouse.set_visible(1)
       wrong_area()
       gaming = False
     
     if polygons_collide(spaceship_poly, ground):
+      pygame.mouse.set_visible(1)
       wrong_area()
     
     if platform_pos[0] <= spaceship_pos[0] + 10 and spaceship_pos[0] <= platform_pos[0] + 20 and platform_pos[1] <= spaceship_pos[1] + 10 < platform_pos[1] + 5:
+      pygame.mouse.set_visible(1)
       if v1 <= 3.0:
         win()
       else:
@@ -599,7 +649,8 @@ orange = (255, 165, 0)
 light_blue = (173, 116, 233)
 
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption('E')
+pygame.display.set_caption('Rocket Lander')
 font = pygame.font.Font(None, 36)
 
 login()
+  
