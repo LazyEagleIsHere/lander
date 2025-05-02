@@ -282,7 +282,9 @@ def win():
     screen.fill(black)
     draw("You Win!", 100, height // 2 - 250)
     
-    if v1 <= 1.0:
+    if v1 <= 0:
+      lose()
+    elif v1 <= 1.0:
       draw(f"Touchdown Softness: Prefect ({v1:.5f} m/s)", 100, height // 2)
     elif v1 <= 2.0:
       draw(f"Touchdown Softness: Good ({v1:.5f} m/s)", 100, height // 2)
