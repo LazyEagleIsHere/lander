@@ -18,8 +18,9 @@ def start_screen():
   while starter:
     draw("Rocket Lander", 100, height // 4)
     
-    start = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
-    lead = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+    start = pygame.Rect(width // 2 - 200, height // 2 + 25, 400, 100)
+    tutor = pygame.Rect(width // 2 - 200, height // 2 + 150, 400, 100)
+    lead = pygame.Rect(width // 2 - 200, height // 2 + 275, 400, 100)
     
     mouse_pos = pygame.mouse.get_pos()
 
@@ -33,7 +34,10 @@ def start_screen():
     else:
       write(screen, lead, "Leaderboard", 65, "black", "white", 10)
     
-    pygame.display.flip()
+    if tutor.collidepoint(mouse_pos):
+      write(screen, tutor, "Tutorial", 65, "black", "gray69", 10)
+    else:
+      write(screen, tutor, "Tutorial", 65, "black", "white", 10)
     
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
@@ -50,6 +54,54 @@ def start_screen():
         elif lead.collidepoint(mouse_pos):
           starter = False
           leaderboard_screen()
+        elif tutor.collidepoint(mouse_pos):
+          starter = False
+          tutorial()
+    pygame.display.flip()
+
+def tutorial():
+  running = True
+  while running:
+    screen.fill(black)
+    draw("Use Arror Keys or WAD to play", 100, height // 4)
+    draw("Please land PROPERLY!", 100, height // 2 + (height // 4 - height // 2) / 2)
+    draw("Land on the mountain top", 100, height // 2)
+
+    home = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+    
+    mouse_pos = pygame.mouse.get_pos()
+    
+    if home.collidepoint(mouse_pos):
+      write(screen, home, "Home", 65, "black", "gray69", 10)
+    else:
+      write(screen, home, "Home", 65, "black", "white", 10)
+    
+    start = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
+
+    mouse_pos = pygame.mouse.get_pos()
+
+    if start.collidepoint(mouse_pos):
+      write(screen, start, "Start", 65, "black", "gray69", 10)
+    else:
+      write(screen, start, "Start", 65, "black", "white", 10)
+    
+    pygame.display.flip()
+    
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          sys.exit()
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+        if home.collidepoint(mouse_pos):
+          start = False
+          login()
+        elif start.collidepoint(mouse_pos):
+          start = False
+          cntdown()
 
 def leaderboard_screen():
   global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
@@ -218,7 +270,7 @@ def wrong_area():
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if home.collidepoint(mouse_pos):
           sad = False
-          start_screen()
+          login()
         elif again.collidepoint(mouse_pos):
           sad = False
           cntdown()
@@ -266,7 +318,7 @@ def win():
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if home.collidepoint(mouse_pos):
           yay = False
-          start_screen()
+          login()
         elif again.collidepoint(mouse_pos):
           yay = False
           cntdown()
@@ -276,7 +328,7 @@ def lose():
   sad = True
   while sad:
     draw("Game Over", 100, height // 2 - 250)
-    draw("Reason: Rocket exploded due to your worse landing", 100, height // 2 - 150)
+    draw("Reason: Rocket exploded due to your worse landing", 75, height // 2 - 150)
     
     mouse_pos = pygame.mouse.get_pos()
     
@@ -307,7 +359,7 @@ def lose():
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if home.collidepoint(mouse_pos):
           sad = False
-          start_screen()
+          login()
         elif again.collidepoint(mouse_pos):
           sad = False
           cntdown()
@@ -401,7 +453,7 @@ def game():
   
   gaming = True
   
-  spaceship_pos = [10, 10]
+  spaceship_pos = [width // 2, 30]
   gravity = 3.0
   a = 6.0
   v1 = -0.1
@@ -430,10 +482,10 @@ def game():
           pygame.quit()
           sys.exit()
     
-    ground = [Vector2(platform_pos[0], platform_pos[1] + 2), 
+    ground = [Vector2(platform_pos[0], platform_pos[1] + 5), 
               Vector2(platform_pos[0] - platform_ground1, height), 
               Vector2(platform_pos[0] + platform_ground2, height), 
-              Vector2(platform_pos[0] + 20, platform_pos[1] + 2)]
+              Vector2(platform_pos[0] + 20, platform_pos[1] + 5)]
     
     spaceship_poly = get_spaceship_polygon(spaceship_pos)
     
@@ -476,15 +528,15 @@ def game():
     else:
       if fuel > 0:
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
           v1 -= a / fps
           fuel -= 1
         
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
           v2 += a / (fps * 2)
           fuel -= 1
         
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
           v2 -= a / (fps * 2)
           fuel -= 1
     
