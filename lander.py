@@ -51,6 +51,8 @@ def start_screen():
         if event.key == pygame.K_ESCAPE:
           pygame.quit()
           sys.exit()
+        elif event.key == pygame.K_RSHIFT:
+          login()
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if start.collidepoint(mouse_pos):
           starter = False
@@ -68,26 +70,24 @@ def tutorial():
   while running:
     screen.fill(black)
     draw("Use Arror Keys or WAD to play", 100, height // 4)
-    draw("Please land PROPERLY!", 100, height // 2 + (height // 4 - height // 2) / 2)
-    draw("Land on the mountain top", 100, height // 2)
-
-    home = pygame.Rect(width // 2 - 200, height // 2 + 200, 400, 100)
+    draw("Please land PROPERLY! (vertical velocity less than or equal to 3 m/s)", 75, height // 2 + (height // 4 - height // 2) / 2)
+    draw("Mission: Land on the mountain top", 100, height // 2 - 20)
     
     mouse_pos = pygame.mouse.get_pos()
     
-    if home.collidepoint(mouse_pos):
-      write(screen, home, "Home", 65, "black", "gray69", 10)
-    else:
-      write(screen, home, "Home", 65, "black", "white", 10)
-    
-    start = pygame.Rect(width // 2 - 200, height // 2 + 50, 400, 100)
-
-    mouse_pos = pygame.mouse.get_pos()
+    start = pygame.Rect(width // 2 - 200, height // 2 + 100, 400, 100)
 
     if start.collidepoint(mouse_pos):
       write(screen, start, "Start", 65, "black", "gray69", 10)
     else:
       write(screen, start, "Start", 65, "black", "white", 10)
+    
+    home = pygame.Rect(width // 2 - 200, height // 2 + 250, 400, 100)
+        
+    if home.collidepoint(mouse_pos):
+      write(screen, home, "Home", 65, "black", "gray69", 10)
+    else:
+      write(screen, home, "Home", 65, "black", "white", 10)
     
     pygame.display.flip()
     
@@ -102,13 +102,12 @@ def tutorial():
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if home.collidepoint(mouse_pos):
           start = False
-          login()
+          start_screen()
         elif start.collidepoint(mouse_pos):
           start = False
           cntdown()
 
 def leaderboard_screen():
-  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
   lead = True
   while lead:    
     screen.fill(black)
@@ -274,13 +273,12 @@ def wrong_area():
       elif event.type == pygame.MOUSEBUTTONDOWN:
         if home.collidepoint(mouse_pos):
           sad = False
-          login()
+          start_screen()
         elif again.collidepoint(mouse_pos):
           sad = False
           cntdown()
 
 def win():
-  global spaceship_pos, gravity, a, v1, v2, fuel, platform_pos, platform_ground1, platform_ground2
   yay = True
   while yay:
     screen.fill(black)
@@ -555,7 +553,9 @@ def game():
     
     if platform_pos[0] <= spaceship_pos[0] + 10 and spaceship_pos[0] <= platform_pos[0] + 20 and platform_pos[1] <= spaceship_pos[1] + 10 < platform_pos[1] + 5:
       pygame.mouse.set_visible(1)
-      if v1 <= 3.0:
+      if v1 < 0:
+        continue
+      elif v1 <= 3.0:
         win()
       else:
         lose()
