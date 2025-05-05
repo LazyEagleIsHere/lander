@@ -6,7 +6,6 @@ from text import *
 from pygame.math import Vector2
 from pygame.locals import *
 
-
 pygame.init()
 
 def draw(text, font_size, y_position):
