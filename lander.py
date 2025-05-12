@@ -286,11 +286,16 @@ def win():
     if v1 <= 0:
       lose()
     elif v1 <= 1.0:
-      draw(f"Touchdown Softness: Prefect ({v1:.5f} m/s)", 100, height // 2)
+      draw(f"Touchdown Softness: Prefect ({v1:.5f} m/s)", 100, height // 2 - 100)
     elif v1 <= 2.0:
-      draw(f"Touchdown Softness: Good ({v1:.5f} m/s)", 100, height // 2)
+      draw(f"Touchdown Softness: Good `({v1:.5f} m/s)", 100, height // 2 - 100)
     else:
-      draw(f"Touchdown Softness: Terrible ({v1:.5f} m/s)", 100, height // 2)
+      draw(f"Touchdown Softness: Terrible ({v1:.5f} m/s)", 100, height // 2 - 100)
+    
+    if username == "admin":
+      draw(f"Used fuel: {10 ** 100 - fuel}", 100, height // 2)
+    else:
+      draw(f"Used fuel: {1000 - fuel}", 100, height // 2)
         
     mouse_pos = pygame.mouse.get_pos()
     
@@ -465,9 +470,9 @@ def game():
   v2 = 0.0
   
   if username == "admin" and me:
-    fuel = 1e100
+    fuel = 10 ** 100
   else:
-    fuel = 1e3
+    fuel = 1000
   
   pygame.mouse.set_visible(0)
   
@@ -566,7 +571,7 @@ def game():
       if fuel > 0:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_DOWN]:
-          v1 -= a / fps
+          v1 -= 2 * a / fps
           fuel -= 1
         
         if keys[pygame.K_LEFT]:
@@ -612,7 +617,7 @@ def game():
     pygame.draw.rect(screen, black, spaceship_h_rect.inflate(10, 5))
     screen.blit(spaceship_h_text, spaceship_h_rect)
     
-    fuel_text = font.render(f"Fuel: {fuel}", True, orange)
+    fuel_text = font.render(f"Fuel: {fuel * 1.0}", True, orange)
     fuel_rect = fuel_text.get_rect(topleft = (1000 + info_spacing, info_y))
     pygame.draw.rect(screen, black, fuel_rect.inflate(10, 5))
     screen.blit(fuel_text, fuel_rect)
